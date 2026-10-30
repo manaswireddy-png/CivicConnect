@@ -2,5 +2,7 @@
   "name": "CivicConnect AI",
   "description": "AI-powered public grievance and government service assistance platform for Indian citizens focusing on Telangana and Hyderabad with multilingual AI guidance and transparent resolution tracking.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }

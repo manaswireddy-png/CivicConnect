@@ -27,7 +27,7 @@ service cloud.firestore {
       return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
     }
 
-    // Users Collection (Citizen & Staff profiles)
+    // 1. Users Collection (Citizens can access only their own profiles)
     match /users/{userId} {
       allow get: if isOwner(userId) || isAdmin();
       allow list: if isAdmin();
@@ -38,13 +38,13 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // Government Services Catalog (Public readable, Admin editable)
+    // 2. Government Services Catalog (Public users can read the services directory)
     match /services/{serviceId} {
       allow read: if true;
       allow write: if isAdmin();
     }
 
-    // Grievances Collection
+    // 3. Grievances Collection (Citizens access only their own grievances; Only admins update status)
     match /grievances/{grievanceId} {
       allow get: if isOwner(resource.data.userId) || isAdmin();
       allow list: if (isSignedIn() && resource.data.userId == request.auth.uid) || isAdmin();
@@ -58,23 +58,23 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // Status History (Audit trail of complaint progress)
+    // 4. Status History (Only authorized administrators can create status-history records)
     match /statusHistory/{historyId} {
       allow read: if isSignedIn();
-      allow create: if isSignedIn();
+      allow create: if isAdmin();
       allow update, delete: if isAdmin();
     }
 
-    // Feedback (Citizen ratings on resolved issues)
+    // 5. Feedback (Citizen ratings on resolved issues)
     match /feedback/{feedbackId} {
       allow read: if isSignedIn();
       allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
       allow update, delete: if isAdmin();
     }
 
-    // Admins registry
+    // 6. Admins registry (Ordinary users CANNOT read the admin registry)
     match /admins/{adminId} {
-      allow read: if isSignedIn();
+      allow read: if isAdmin();
       allow write: if isAdmin();
     }
   }

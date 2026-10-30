@@ -214,6 +214,17 @@ export const GrievanceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       newGrievance.duplicateOf = duplicateMatches[0].referenceId;
     }
 
+    // Save to Backend API router
+    try {
+      await fetch('/api/grievances', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newGrievance),
+      });
+    } catch (apiErr) {
+      console.warn('Backend API submission warning:', apiErr);
+    }
+
     // Save to Firestore
     try {
       const docRef = doc(db, 'grievances', referenceId);
@@ -266,6 +277,22 @@ export const GrievanceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   ): Promise<void> => {
     const now = new Date().toISOString();
     const updatedBy = userProfile?.name || 'Authorized Officer';
+
+    // Update on Backend API router
+    try {
+      await fetch(`/api/grievances/${encodeURIComponent(referenceId)}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: newStatus,
+          note: note || `Status updated to ${newStatus}.`,
+          updatedBy,
+          resolutionNotes,
+        }),
+      });
+    } catch (apiErr) {
+      console.warn('Backend API status update warning:', apiErr);
+    }
 
     // Update in Firestore
     try {
