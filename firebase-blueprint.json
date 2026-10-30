@@ -1,0 +1,120 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Registered citizen or government administrator profile",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "name": { "type": "string", "description": "Full name of citizen or official", "maxLength": 100 },
+        "email": { "type": "string", "description": "Email address", "maxLength": 150 },
+        "role": { "type": "string", "enum": ["citizen", "admin"], "description": "Access control role" },
+        "createdAt": { "type": "string", "description": "Account creation ISO timestamp" }
+      },
+      "required": ["uid", "name", "email", "role"]
+    },
+    "GovernmentService": {
+      "title": "GovernmentService",
+      "description": "Verified public service information and application procedure",
+      "type": "object",
+      "properties": {
+        "serviceId": { "type": "string", "description": "Unique slug for service", "maxLength": 64 },
+        "name": { "type": "string", "description": "Service name in English", "maxLength": 200 },
+        "category": { "type": "string", "description": "Service domain category", "maxLength": 100 },
+        "department": { "type": "string", "description": "Government department or civic authority", "maxLength": 200 },
+        "description": { "type": "string", "description": "Service overview and purpose", "maxLength": 2000 },
+        "eligibility": { "type": "string", "description": "Eligibility conditions", "maxLength": 1000 },
+        "requiredDocuments": { "type": "array", "description": "List of required documents" },
+        "procedure": { "type": "string", "description": "Application procedure steps", "maxLength": 3000 },
+        "officialSource": { "type": "string", "description": "Official portal URL or verified office", "maxLength": 300 },
+        "lastReviewed": { "type": "string", "description": "Date of verified review", "maxLength": 50 }
+      },
+      "required": ["serviceId", "name", "category", "department", "description"]
+    },
+    "Grievance": {
+      "title": "Grievance",
+      "description": "Public grievance lodged by a citizen",
+      "type": "object",
+      "properties": {
+        "referenceId": { "type": "string", "description": "Human-readable reference ID e.g. GRA-2026-00001", "maxLength": 32 },
+        "userId": { "type": "string", "description": "UID of complainant citizen", "maxLength": 128 },
+        "subject": { "type": "string", "description": "Summary title of complaint", "maxLength": 200 },
+        "description": { "type": "string", "description": "Detailed grievance description", "maxLength": 4000 },
+        "category": { "type": "string", "description": "Issue classification", "maxLength": 100 },
+        "department": { "type": "string", "description": "Assigned civic department", "maxLength": 200 },
+        "location": { "type": "string", "description": "Street, ward, area, or landmark", "maxLength": 300 },
+        "priority": { "type": "string", "enum": ["Low", "Medium", "High", "Urgent"], "description": "Urgency rating" },
+        "status": { "type": "string", "enum": ["Submitted", "Acknowledged", "In Progress", "Resolved", "Closed"], "description": "Current lifecycle status" },
+        "attachmentUrl": { "type": "string", "description": "Optional image evidence URL or data URL", "maxLength": 500000 },
+        "resolutionNotes": { "type": "string", "description": "Staff remarks on resolution", "maxLength": 2000 },
+        "duplicateOf": { "type": "string", "description": "Reference ID if flagged duplicate", "maxLength": 32 },
+        "createdAt": { "type": "string", "description": "Submission ISO timestamp" },
+        "updatedAt": { "type": "string", "description": "Last update ISO timestamp" }
+      },
+      "required": ["referenceId", "userId", "subject", "description", "category", "department", "location", "status"]
+    },
+    "StatusHistory": {
+      "title": "StatusHistory",
+      "description": "Audit trail log of grievance status transitions",
+      "type": "object",
+      "properties": {
+        "grievanceId": { "type": "string", "description": "Target grievance ID or referenceId", "maxLength": 128 },
+        "status": { "type": "string", "description": "New status value", "maxLength": 50 },
+        "note": { "type": "string", "description": "Officer or system transition note", "maxLength": 2000 },
+        "updatedBy": { "type": "string", "description": "UID or name of author", "maxLength": 128 },
+        "timestamp": { "type": "string", "description": "ISO timestamp of transition" }
+      },
+      "required": ["grievanceId", "status", "note", "timestamp"]
+    },
+    "Feedback": {
+      "title": "Feedback",
+      "description": "Citizen post-resolution satisfaction rating",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "UID of rating citizen", "maxLength": 128 },
+        "grievanceId": { "type": "string", "description": "Target grievance ID", "maxLength": 128 },
+        "rating": { "type": "integer", "description": "Rating score from 1 to 5" },
+        "comments": { "type": "string", "description": "Citizen comments", "maxLength": 1000 },
+        "createdAt": { "type": "string", "description": "ISO timestamp of review" }
+      },
+      "required": ["userId", "grievanceId", "rating"]
+    },
+    "Admin": {
+      "title": "Admin",
+      "description": "Designated administrator authorization record",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "maxLength": 150 },
+        "role": { "type": "string", "enum": ["admin", "superadmin"] },
+        "addedAt": { "type": "string" }
+      },
+      "required": ["email", "role"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Citizen and staff profiles"
+    },
+    "/services/{serviceId}": {
+      "schema": "GovernmentService",
+      "description": "Public catalog of verified civic services"
+    },
+    "/grievances/{grievanceId}": {
+      "schema": "Grievance",
+      "description": "Public complaints lodged by citizens"
+    },
+    "/statusHistory/{historyId}": {
+      "schema": "StatusHistory",
+      "description": "Audit trail log of complaint status changes"
+    },
+    "/feedback/{feedbackId}": {
+      "schema": "Feedback",
+      "description": "Citizen satisfaction reviews on resolved complaints"
+    },
+    "/admins/{adminId}": {
+      "schema": "Admin",
+      "description": "Designated administrators table for security rules check"
+    }
+  }
+}
